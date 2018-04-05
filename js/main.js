@@ -29,6 +29,8 @@ const main = ({ $, _, jtab: jTab }) => {
     /*=====  End of initializing  ======*/
 
     const previewButton = $('.preview');
+    const submitButton = $('.submit');
+
 
     // removing blank lines
     const removeBlankLines = text => _.filter(text, t => !_.isEmpty(t));
@@ -52,9 +54,9 @@ const main = ({ $, _, jtab: jTab }) => {
         return _.uniq(_.map(foundChords, i => _.trim(i)));
     };
 
-    const parseFieldName = (name) => {
+    const parseFieldName = (name, parseType = 'startCase') => {
         // this will work only for song field
-        return _.startCase(_.replace(name, /song\[(.*?)\]/gi, '$1'))
+        return _[parseType](_.replace(name, /song\[(.*?)\]/gi, '$1'))
     }
 
     const buildTitleText = (field) => {
@@ -158,6 +160,49 @@ const main = ({ $, _, jtab: jTab }) => {
             });
         });
     });
+
+    submitButton.on('click', (event) => {
+        event.preventDefault();
+
+        const currentText = primaryTextArea.val().split('\n');
+        const lines = removeBlankLines(currentText);
+        const chordList = separateChordsAndText(lines);
+        const songInfoArray = $('.songInfo').serializeArray();
+        let tabInfo = {};
+        let postData = { chords: chordList };
+
+        _.forEach(songInfoArray, info => {
+            let parsedFiledName = parseFieldName(info.name, 'camelCase');
+            if (parsedFiledName === 'artistName') {
+                parsedFiledName = 'artist';
+            }
+            tabInfo = _.extend({}, tabInfo, {[parsedFiledName]: info.value})
+        })
+
+        let songName = 'Anonymous', artist = 'Anonymous', displayText = `${songName} by ${artist}`;
+        if (!_.isEmpty(tabInfo)) {
+            displayText = `${ tabInfo.songName || songName } by ${ tabInfo.artist || artist }`
+        }
+
+        postData = _.extend({}, postData, { tabInfo }, { text: displayText }, { lyric: currentText });
+
+        $.ajax({
+            method: "POST",
+            url: "http://localhost:3000/api/tab",
+            data: JSON.stringify(postData),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtdXNpY3BsYXlpbiIsInN1YiI6IjVhYmU2ZDMxY2I5YTA2MjY0ODg2ZmNhNSIsImlhdCI6MTUyMjQyOTI1NTIzNCwiZXhwIjoxNTIyNTE1NjU1MjM0fQ.rlyeC6_eZUrPag7j2IA_3ETPP12VlbmtkI5yE8TwP-o'
+            }
+        })
+        .done((msg) => {
+            alert( "Data Saved: " + msg );
+        })
+        .fail((error) => {
+            console.log(error);
+            alert("error");
+        })
+    })
 
     goBack.on('click', e => {
         editorArea.removeClass('hidden');
