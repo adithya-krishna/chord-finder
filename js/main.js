@@ -1,26 +1,26 @@
-var notes = '[CDEFGAB](#?|b?)',
-    accidentals = '(b|bb)?',
-    chords = '(/[CDEFGAB](#?|b?)|add|m|maj7|maj|min7|min|sus)?',
-    suspends = '(1|2|3|4|5|6|7|8|9)?',
-    sharp = '(#)?',
-    wordsRegex = new RegExp(
-        '\\b' + notes + accidentals + chords + suspends + '\\b' + sharp,
-        'g'
-    );
-const squareBracketsRegex = new RegExp('\[(.*?)\]');
+const notes       = '[CDEFGAB](#?|b?)';
+const accidentals = '(b|bb)?';
+const chords      = '(/[CDEFGAB](#?|b?)|add|m|maj7|maj|min7|min|sus)?';
+const suspends    = '(1|2|3|4|5|6|7|8|9)?';
+const sharp       = '(#)?';
+const wordsRegex = new RegExp(
+    '\\b' + notes + accidentals + chords + suspends + '\\b' + sharp,
+    'g'
+);
+const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtdXNpY3BsYXlpbiIsInN1YiI6IjVhYmU2ZDMxY2I5YTA2MjY0ODg2ZmNhNSIsImlhdCI6MTUyMjQyOTI1NTIzNCwiZXhwIjoxNTIyNTE1NjU1MjM0fQ.rlyeC6_eZUrPag7j2IA_3ETPP12VlbmtkI5yE8TwP-o';
 
 const main = ({ $, _, jtab: jTab }) => {
     /*====================================
     =            initializing            =
     ====================================*/
     const primaryTextArea = $('.primaryTextArea');
-    const editorArea = $('.editorArea');
-    const previewArea = $('.previewArea');
-    const songTitle = $('.previewArea .songTitle');
-    const songLabels = $('.previewArea .songLabels');
-    const previewWrapper = $('.previewWrapper');
-    const goBack = $('.goBack');
-    let previewTitleText = '';
+    const editorArea      = $('.editorArea');
+    const previewArea     = $('.previewArea');
+    const songTitle       = $('.previewArea .songTitle');
+    const songLabels      = $('.previewArea .songLabels');
+    const previewWrapper  = $('.previewWrapper');
+    const goBack          = $('.goBack');
+    let previewTitleText  = '';
 
     if (!editorArea.hasClass('hidden')) {
         primaryTextArea.linedtextarea();
@@ -29,12 +29,12 @@ const main = ({ $, _, jtab: jTab }) => {
     /*=====  End of initializing  ======*/
 
     const previewButton = $('.preview');
-    const submitButton = $('.submit');
+    const submitButton  = $('.submit');
 
 
     // removing blank lines
     const removeBlankLines = text => _.filter(text, t => !_.isEmpty(t));
-    const trimText = text => _.map(text, t => _.trim(t));
+    const trimText         = text => _.map(text, t => _.trim(t));
 
     const separateChordsAndText = lines => {
         const foundChords = _.reduce(
@@ -65,11 +65,12 @@ const main = ({ $, _, jtab: jTab }) => {
     }
 
     previewButton.on('click', () => {
-        const currentText = primaryTextArea.val().split('\n');
-        const lines = removeBlankLines(currentText);
-        const chordList = separateChordsAndText(lines);
+        const currentText   = primaryTextArea.val().split('\n');
+        const lines         = removeBlankLines(currentText);
+        const chordList     = separateChordsAndText(lines);
         let validatedChords = [];
-        // Clearing fields
+
+        // Clearing html fields
         previewTitleText = '';
         previewWrapper.html('');
         songTitle.html('');
@@ -113,9 +114,9 @@ const main = ({ $, _, jtab: jTab }) => {
 
         const onPopupShown = elem => {
             const $popupTrigger = $(elem);
-            const currentChord = $popupTrigger.data('chord');
-            const $popup = $popupTrigger.popup('get popup');
-            const jTabArea = $popup.find('.jTabArea');
+            const currentChord  = $popupTrigger.data('chord');
+            const $popup        = $popupTrigger.popup('get popup');
+            const jTabArea      = $popup.find('.jTabArea');
 
             jTab.render(jTabArea, currentChord, elem => {
                 $popup.find('.ui.active.dimmer').remove();
@@ -123,17 +124,15 @@ const main = ({ $, _, jtab: jTab }) => {
         };
 
         $('.chord').each((i, elem) => {
-            const $elem = $(elem);
+            const $elem        = $(elem);
             const currentChord = $elem.data('chord');
             $elem.popup({
-                hoverable: true,
-                exclusive: true,
-                on: 'click',
-                title: 'check',
-                className: {
-                    popup: 'ui popup removePadding'
-                },
-                html: `<div class="popoverWrapper">
+                hoverable   : true,
+                exclusive   : true,
+                on          : 'click',
+                title       : 'check',
+                className   : { popup: 'ui popup removePadding' },
+                html        : `<div class="popoverWrapper">
                     <div class="ui blue card">
                         <div class="content">
                             Chord Data
@@ -156,7 +155,7 @@ const main = ({ $, _, jtab: jTab }) => {
                         </div>
                     </div>
                 </div>`,
-                onVisible: onPopupShown
+                onVisible   : onPopupShown
             });
         });
     });
@@ -164,12 +163,12 @@ const main = ({ $, _, jtab: jTab }) => {
     submitButton.on('click', (event) => {
         event.preventDefault();
 
-        const currentText = primaryTextArea.val().split('\n');
-        const lines = removeBlankLines(currentText);
-        const chordList = separateChordsAndText(lines);
+        const currentText   = primaryTextArea.val().split('\n');
+        const lines         = removeBlankLines(currentText);
+        const chordList     = separateChordsAndText(lines);
         const songInfoArray = $('.songInfo').serializeArray();
-        let tabInfo = {};
-        let postData = { chords: chordList };
+        let tabInfo         = {};
+        let postData        = { chords: chordList };
 
         _.forEach(songInfoArray, info => {
             let parsedFiledName = parseFieldName(info.name, 'camelCase');
@@ -187,16 +186,17 @@ const main = ({ $, _, jtab: jTab }) => {
         postData = _.extend({}, postData, { tabInfo }, { text: displayText }, { lyric: currentText });
 
         $.ajax({
-            method: "POST",
-            url: "http://localhost:3000/api/tab",
-            data: JSON.stringify(postData),
-            headers: {
+            method  : "POST",
+            url     : "http://localhost:3000/api/tab",
+            data    : JSON.stringify(postData),
+            headers : {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtdXNpY3BsYXlpbiIsInN1YiI6IjVhYmU2ZDMxY2I5YTA2MjY0ODg2ZmNhNSIsImlhdCI6MTUyMjQyOTI1NTIzNCwiZXhwIjoxNTIyNTE1NjU1MjM0fQ.rlyeC6_eZUrPag7j2IA_3ETPP12VlbmtkI5yE8TwP-o'
+                'Authorization': `Bearer ${AUTH_TOKEN}`
             }
         })
         .done((msg) => {
-            alert( "Data Saved: " + msg );
+            $('.successModal .message').html("Tabs saved successfully!")
+            $('.ui.basic.modal').modal('show');
         })
         .fail((error) => {
             console.log(error);

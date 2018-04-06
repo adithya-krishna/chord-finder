@@ -52528,13 +52528,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var notes = '[CDEFGAB](#?|b?)',
-    accidentals = '(b|bb)?',
-    chords = '(/[CDEFGAB](#?|b?)|add|m|maj7|maj|min7|min|sus)?',
-    suspends = '(1|2|3|4|5|6|7|8|9)?',
-    sharp = '(#)?',
-    wordsRegex = new RegExp('\\b' + notes + accidentals + chords + suspends + '\\b' + sharp, 'g');
-var squareBracketsRegex = new RegExp('\[(.*?)\]');
+var notes = '[CDEFGAB](#?|b?)';
+var accidentals = '(b|bb)?';
+var chords = '(/[CDEFGAB](#?|b?)|add|m|maj7|maj|min7|min|sus)?';
+var suspends = '(1|2|3|4|5|6|7|8|9)?';
+var sharp = '(#)?';
+var wordsRegex = new RegExp('\\b' + notes + accidentals + chords + suspends + '\\b' + sharp, 'g');
+var AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtdXNpY3BsYXlpbiIsInN1YiI6IjVhYmU2ZDMxY2I5YTA2MjY0ODg2ZmNhNSIsImlhdCI6MTUyMjQyOTI1NTIzNCwiZXhwIjoxNTIyNTE1NjU1MjM0fQ.rlyeC6_eZUrPag7j2IA_3ETPP12VlbmtkI5yE8TwP-o';
 
 var main = function main(_ref) {
     var $ = _ref.$,
@@ -52607,7 +52607,8 @@ var main = function main(_ref) {
         var lines = removeBlankLines(currentText);
         var chordList = separateChordsAndText(lines);
         var validatedChords = [];
-        // Clearing fields
+
+        // Clearing html fields
         previewTitleText = '';
         previewWrapper.html('');
         songTitle.html('');
@@ -52663,9 +52664,7 @@ var main = function main(_ref) {
                 exclusive: true,
                 on: 'click',
                 title: 'check',
-                className: {
-                    popup: 'ui popup removePadding'
-                },
+                className: { popup: 'ui popup removePadding' },
                 html: '<div class="popoverWrapper">\n                    <div class="ui blue card">\n                        <div class="content">\n                            Chord Data\n                            <div class="right floated meta">\n                                <div class="ui label">\n                                    Usage\n                                    <div class="detail">214</div>\n                                </div>\n                            </div>\n                        </div>\n                        <div class="image">\n                            <div class="jTabArea"></div>\n                        </div>\n                        <div class="content">\n                            <h1 class="dividing header">' + currentChord + '</h1>\n                            <p>I am a very simple card. I am good at containing small bits of information. I am convenient because I require little markup to use effectively.</p>\n                        </div>\n                        <div class="extra content">\n                            Variations\n                        </div>\n                    </div>\n                </div>',
                 onVisible: onPopupShown
             });
@@ -52697,7 +52696,7 @@ var main = function main(_ref) {
             displayText = (tabInfo.songName || songName) + ' by ' + (tabInfo.artist || artist);
         }
 
-        postData = _.extend({}, postData, { tabInfo: tabInfo }, { text: displayText });
+        postData = _.extend({}, postData, { tabInfo: tabInfo }, { text: displayText }, { lyric: currentText });
 
         $.ajax({
             method: "POST",
@@ -52705,10 +52704,11 @@ var main = function main(_ref) {
             data: JSON.stringify(postData),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtdXNpY3BsYXlpbiIsInN1YiI6IjVhYmU2ZDMxY2I5YTA2MjY0ODg2ZmNhNSIsImlhdCI6MTUyMjQyOTI1NTIzNCwiZXhwIjoxNTIyNTE1NjU1MjM0fQ.rlyeC6_eZUrPag7j2IA_3ETPP12VlbmtkI5yE8TwP-o'
+                'Authorization': 'Bearer ' + AUTH_TOKEN
             }
         }).done(function (msg) {
-            alert("Data Saved: " + msg);
+            $('.successModal .message').html("Tabs saved successfully!");
+            $('.ui.basic.modal').modal('show');
         }).fail(function (error) {
             console.log(error);
             alert("error");
